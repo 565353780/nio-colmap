@@ -31,6 +31,10 @@
 
 #include "colmap/ui/main_window.h"
 
+#include <cstddef>
+
+#include <Eigen/src/Core/Matrix.h>
+
 #define SELECTION_BUFFER_IMAGE_IDX 0
 #define SELECTION_BUFFER_POINT_IDX 1
 
@@ -349,6 +353,9 @@ void ModelViewerWidget::paintGL() {
   // Points
   point_painter_.Render(pmv_matrix, point_size_);
   point_connection_painter_.Render(pmv_matrix, width(), height(), 1);
+
+  // BBox
+  bbox_line_painter_.Render(pmv_matrix, width(), height(), 1);
 
   // Images
   image_line_painter_.Render(pmv_matrix, width(), height(), 1);
@@ -781,6 +788,8 @@ void ModelViewerWidget::SetupPainters() {
   point_painter_.Setup();
   point_connection_painter_.Setup();
 
+  bbox_line_painter_.Setup();
+
   image_line_painter_.Setup();
   image_triangle_painter_.Setup();
   image_connection_painter_.Setup();
@@ -807,6 +816,7 @@ void ModelViewerWidget::Upload() {
   ComposeProjectionMatrix();
 
   UploadPointData();
+  UploadBBoxData();
   UploadImageData();
   UploadMovieGrabberData();
   UploadPointConnectionData();
@@ -1026,6 +1036,65 @@ void ModelViewerWidget::UploadPointConnectionData() {
   }
 
   point_connection_painter_.Upload(line_data);
+}
+
+void ModelViewerWidget::UploadBBoxData() {
+  makeCurrent();
+
+  if (reconstruction == nullptr) {
+    return;
+  }
+
+  if (reconstruction->NumPoints3D() == 0) {
+    return;
+  }
+
+  const std::pair<Eigen::Vector3d, Eigen::Vector3d> bbox =
+      reconstruction->ComputeBoundingBox(0.0, 1.0);
+
+  std::vector<PointPainter::Data> bbox_point_vec;
+  bbox_point_vec.resize(8);
+
+  bbox_point_vec[0] = PointPainter::Data(
+      bbox.first.x(), bbox.first.y(), bbox.first.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[1] = PointPainter::Data(
+      bbox.first.x(), bbox.first.y(), bbox.second.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[2] = PointPainter::Data(
+      bbox.first.x(), bbox.second.y(), bbox.first.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[3] = PointPainter::Data(
+      bbox.first.x(), bbox.second.y(), bbox.second.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[4] = PointPainter::Data(
+      bbox.second.x(), bbox.first.y(), bbox.first.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[5] = PointPainter::Data(
+      bbox.second.x(), bbox.first.y(), bbox.second.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[6] = PointPainter::Data(
+      bbox.second.x(), bbox.second.y(), bbox.first.z(), 1.0, 0.0, 0.0, 1.0);
+  bbox_point_vec[7] = PointPainter::Data(
+      bbox.second.x(), bbox.second.y(), bbox.second.z(), 1.0, 0.0, 0.0, 1.0);
+
+  std::vector<std::pair<int, int>> line_point_idx_vec;
+  line_point_idx_vec.reserve(12);
+
+  for (size_t i = 0; i < 4; ++i) {
+    line_point_idx_vec.emplace_back(
+        std::pair<size_t, size_t>(2 * i, 2 * i + 1));
+    line_point_idx_vec.emplace_back(std::pair<size_t, size_t>(i, i + 4));
+  }
+  for (size_t i = 0; i < 2; ++i) {
+    line_point_idx_vec.emplace_back(std::pair<size_t, size_t>(i, i + 2));
+    line_point_idx_vec.emplace_back(std::pair<size_t, size_t>(i + 4, i + 6));
+  }
+
+  std::vector<LinePainter::Data> line_data;
+  line_data.resize(12);
+
+  for (size_t i = 0; i < 12; ++i) {
+    const std::pair<int, int> line_point_idx = line_point_idx_vec[i];
+    line_data[i].point1 = bbox_point_vec[line_point_idx.first];
+    line_data[i].point2 = bbox_point_vec[line_point_idx.second];
+  }
+
+  bbox_line_painter_.Upload(line_data);
 }
 
 void ModelViewerWidget::UploadImageData(const bool selection_mode) {

@@ -142,6 +142,7 @@ class ModelViewerWidget : public QOpenGLWidget,
   void UploadCoordinateGridData();
   void UploadPointData(bool selection_mode = false);
   void UploadPointConnectionData();
+  void UploadBBoxData();
   void UploadImageData(bool selection_mode = false);
   void UploadImageConnectionData();
   void UploadMovieGrabberData();
@@ -164,6 +165,8 @@ class ModelViewerWidget : public QOpenGLWidget,
 
   PointPainter point_painter_;
   LinePainter point_connection_painter_;
+
+  LinePainter bbox_line_painter_;
 
   LinePainter image_line_painter_;
   TrianglePainter image_triangle_painter_;

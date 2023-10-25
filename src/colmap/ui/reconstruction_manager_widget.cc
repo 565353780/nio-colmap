@@ -32,9 +32,6 @@
 #include <cstdlib>
 #include <limits>
 
-#include <Eigen/src/Core/Matrix.h>
-#include <stdio.h>
-
 namespace colmap {
 
 const size_t ReconstructionManagerWidget::kNewestReconstructionIdx =
@@ -78,31 +75,6 @@ void ReconstructionManagerWidget::Update() {
 #endif
     max_width = std::max(max_width, width);
     addItem(item);
-  }
-
-  if (true) {
-    std::cout << "start set min and max points!" << std::endl;
-    Eigen::Vector3d min_point(std::numeric_limits<double>::max(),
-                              std::numeric_limits<double>::max(),
-                              std::numeric_limits<double>::max());
-    Eigen::Vector3d max_point(std::numeric_limits<double>::min(),
-                              std::numeric_limits<double>::min(),
-                              std::numeric_limits<double>::min());
-    std::cout << "start check point num and position!" << std::endl;
-    for (size_t i = 0; i < reconstruction_manager_->Size(); ++i) {
-      std::shared_ptr<const Reconstruction> reconstruction =
-          reconstruction_manager_->Get(i);
-      std::cout << "reconstruction [" << i << "] have "
-                << reconstruction->NumPoints3D() << "points." << std::endl;
-
-      std::pair<Eigen::Vector3d, Eigen::Vector3d> bbox =
-          reconstruction->ComputeBoundingBox();
-
-      std::cout << "bbox[" << i << "]" << std::endl;
-      std::cout << bbox.first << " --> " << bbox.second << std::endl;
-    }
-    std::cout << "finish check point num and position!" << std::endl;
-    getchar();
   }
 
   view()->setMinimumWidth(max_width);
