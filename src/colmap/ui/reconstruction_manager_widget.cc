@@ -79,29 +79,31 @@ void ReconstructionManagerWidget::Update() {
     addItem(item);
   }
 
-  std::cout << "start set min and max points!" << std::endl;
-  Eigen::Vector3d min_point(std::numeric_limits<double>::max(),
-                            std::numeric_limits<double>::max(),
-                            std::numeric_limits<double>::max());
-  Eigen::Vector3d max_point(std::numeric_limits<double>::min(),
-                            std::numeric_limits<double>::min(),
-                            std::numeric_limits<double>::min());
-  std::cout << "start check point num and position!" << std::endl;
-  for (size_t i = 0; i < reconstruction_manager_->Size(); ++i) {
-    std::shared_ptr<const Reconstruction> reconstruction =
-        reconstruction_manager_->Get(i);
-    std::cout << "reconstruction [" << i << "] have "
-              << reconstruction->NumPoints3D() << "points." << std::endl;
-    continue;
+  if (true) {
+    std::cout << "start set min and max points!" << std::endl;
+    Eigen::Vector3d min_point(std::numeric_limits<double>::max(),
+                              std::numeric_limits<double>::max(),
+                              std::numeric_limits<double>::max());
+    Eigen::Vector3d max_point(std::numeric_limits<double>::min(),
+                              std::numeric_limits<double>::min(),
+                              std::numeric_limits<double>::min());
+    std::cout << "start check point num and position!" << std::endl;
+    for (size_t i = 0; i < reconstruction_manager_->Size(); ++i) {
+      std::shared_ptr<const Reconstruction> reconstruction =
+          reconstruction_manager_->Get(i);
+      std::cout << "reconstruction [" << i << "] have "
+                << reconstruction->NumPoints3D() << "points." << std::endl;
+      continue;
 
-    for (uint64_t j = 0; j < reconstruction->NumPoints3D(); ++j) {
-      const Point3D point = reconstruction->Point3D(j);
-      std::cout << "point_idx:" << i << "," << j << "; position:" << point.XYZ()
-                << std::endl;
+      for (uint64_t j = 0; j < reconstruction->NumPoints3D(); ++j) {
+        const Point3D point = reconstruction->Point3D(j);
+        std::cout << "point_idx:" << i << "," << j
+                  << "; position:" << point.XYZ() << std::endl;
+      }
     }
+    std::cout << "finish check point num and position!" << std::endl;
+    getchar();
   }
-  std::cout << "finish check point num and position!" << std::endl;
-  getchar();
 
   view()->setMinimumWidth(max_width);
 
