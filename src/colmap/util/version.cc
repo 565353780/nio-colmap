@@ -37,8 +37,8 @@ namespace {
 
 const std::string COLMAP_VERSION = "3.9";
 const int COLMAP_VERSION_NUMBER = 3900;
-const std::string COLMAP_COMMIT_ID = "a7b50e4d";
-const std::string COLMAP_COMMIT_DATE = "2023-10-22";
+const std::string COLMAP_COMMIT_ID = "126ae06";
+const std::string COLMAP_COMMIT_DATE = "2023-10-25";
 
 }  // namespace
 

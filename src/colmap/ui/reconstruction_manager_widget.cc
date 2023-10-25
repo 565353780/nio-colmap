@@ -31,6 +31,7 @@
 
 #include <cstdlib>
 #include <limits>
+
 #include <stdio.h>
 
 namespace colmap {
@@ -39,7 +40,7 @@ const size_t ReconstructionManagerWidget::kNewestReconstructionIdx =
     std::numeric_limits<size_t>::max();
 
 ReconstructionManagerWidget::ReconstructionManagerWidget(
-    QWidget *parent,
+    QWidget* parent,
     std::shared_ptr<const ReconstructionManager> reconstruction_manager)
     : QComboBox(parent),
       reconstruction_manager_(std::move(reconstruction_manager)) {
@@ -64,7 +65,8 @@ void ReconstructionManagerWidget::Update() {
   int max_width = 0;
   for (size_t i = 0; i < reconstruction_manager_->Size(); ++i) {
     const QString item = QString().asprintf(
-        "Model %d (%d images, %d points)", static_cast<int>(i + 1),
+        "Model %d (%d images, %d points)",
+        static_cast<int>(i + 1),
         static_cast<int>(reconstruction_manager_->Get(i)->NumRegImages()),
         static_cast<int>(reconstruction_manager_->Get(i)->NumPoints3D()));
     QFontMetrics font_metrics(view()->font());
@@ -77,20 +79,28 @@ void ReconstructionManagerWidget::Update() {
     addItem(item);
   }
 
+  std::cout << "start set min and max points!" << std::endl;
   Eigen::Vector3d min_point(std::numeric_limits<double>::max(),
                             std::numeric_limits<double>::max(),
                             std::numeric_limits<double>::max());
   Eigen::Vector3d max_point(std::numeric_limits<double>::min(),
                             std::numeric_limits<double>::min(),
                             std::numeric_limits<double>::min());
+  std::cout << "start check point num and position!" << std::endl;
   for (size_t i = 0; i < reconstruction_manager_->Size(); ++i) {
-    const Reconstruction *reconstruction = reconstruction_manager_->Get(i);
-    for (size_t j = 0; j < reconstruction->NumPoints3D(); ++j) {
+    std::shared_ptr<const Reconstruction> reconstruction =
+        reconstruction_manager_->Get(i);
+    std::cout << "reconstruction [" << i << "] have "
+              << reconstruction->NumPoints3D() << "points." << std::endl;
+    continue;
+
+    for (uint64_t j = 0; j < reconstruction->NumPoints3D(); ++j) {
       const Point3D point = reconstruction->Point3D(j);
       std::cout << "point_idx:" << i << "," << j << "; position:" << point.XYZ()
                 << std::endl;
     }
   }
+  std::cout << "finish check point num and position!" << std::endl;
   getchar();
 
   view()->setMinimumWidth(max_width);
@@ -133,4 +143,4 @@ void ReconstructionManagerWidget::SelectReconstruction(const size_t idx) {
   }
 }
 
-} // namespace colmap
+}  // namespace colmap

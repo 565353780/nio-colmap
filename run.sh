@@ -1,1 +1,1 @@
-../niocm/build/install/bin/colmap gui
+./build/install/bin/colmap gui

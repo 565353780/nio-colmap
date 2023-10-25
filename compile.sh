@@ -1,10 +1,11 @@
-cd ../niocm
-git reset --hard
+mkdir build
+cd build
 
-cd ../nio-colmap
-python replace.py
+cmake .. \
+	-DCMAKE_CUDA_ARCHITECTURES=86 \
+	-DCMAKE_INSTALL_PREFIX=./install \
+	-G Ninja \
+	-DCMAKE_BUILD_TYPE=Debug
 
-cd ../niocm/build
-cmake .. -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_INSTALL_PREFIX=./install -G Ninja
 ninja
 ninja install
