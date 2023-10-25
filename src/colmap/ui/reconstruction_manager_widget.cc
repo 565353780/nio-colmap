@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <limits>
 
+#include <Eigen/src/Core/Matrix.h>
 #include <stdio.h>
 
 namespace colmap {
@@ -93,13 +94,12 @@ void ReconstructionManagerWidget::Update() {
           reconstruction_manager_->Get(i);
       std::cout << "reconstruction [" << i << "] have "
                 << reconstruction->NumPoints3D() << "points." << std::endl;
-      continue;
 
-      for (uint64_t j = 0; j < reconstruction->NumPoints3D(); ++j) {
-        const Point3D point = reconstruction->Point3D(j);
-        std::cout << "point_idx:" << i << "," << j
-                  << "; position:" << point.XYZ() << std::endl;
-      }
+      std::pair<Eigen::Vector3d, Eigen::Vector3d> bbox =
+          reconstruction->ComputeBoundingBox();
+
+      std::cout << "bbox[" << i << "]" << std::endl;
+      std::cout << bbox.first << " --> " << bbox.second << std::endl;
     }
     std::cout << "finish check point num and position!" << std::endl;
     getchar();
